@@ -67,10 +67,10 @@ class ClientServer
   def perform_in(command_parts)
     perform_in = command_parts.shift
     class_name = command_parts.shift
+    job = Job.new(class_name, command_parts) # TODO. Add perform_in
 
-    job = Job.new(class_name, command_parts)
-
-    # TODO
+    $jobs.push(job)
+    job.id
   end
 
   def log(message)
