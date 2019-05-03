@@ -2,7 +2,7 @@ require './job.rb'
 require 'thread'
 
 class WorkerServer
-  DEFAULT_WORKERS_COUNT = 10
+  DEFAULT_WORKERS_COUNT = 3
 
   attr_reader :stopped
 

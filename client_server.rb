@@ -14,11 +14,12 @@ class ClientServer
 
   def serve_client
     log('Connected a client.')
-    connection.print('Hey there! Welcome :)')
+    connection.puts('Hey there! Welcome :)')
     while !stopped do
       message = connection.gets.chomp
       handle_exit(message) || handle_command(message)
     end
+  rescue IOError
     log('Bye')
   end
 
@@ -37,13 +38,13 @@ class ClientServer
     command_parts = message.split(' ')
     command_name = command_parts.shift
     result = send(command_name, command_parts)
-    connection.print(result)
+    connection.puts(result)
   rescue NoMethodError
-    connection.print("Sorry, that is not a valid command.")
+    connection.puts("Sorry, that is not a valid command.")
   rescue ArgumentError
-    connection.print("Mmm.. are you sure you sent the right arguments?")
+    connection.puts("Mmm.. are you sure you sent the right arguments?")
   rescue => ex
-    connection.put("Ugh this is awkward: #{ex.message}")
+    connection.puts("Ugh this is awkward: #{ex.message}")
     log("Error: #{ex.message}")
   end
 

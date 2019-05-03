@@ -1,22 +1,32 @@
-require './hello_world_job.rb'
-require './hello_me_job.rb'
 require './worker_server.rb'
 
 describe WorkerServer do
+  class TestJob
+    def perform
+      'result'
+    end
+  end
+
+  class TestJobMultipleParams
+    def perform(_first_param, _second_param)
+      'result'
+    end
+  end
+
   subject { described_class.new }
 
   describe '#start' do
     context 'when the jobs are valid' do
       before do
         $jobs = Queue.new
-        $jobs.push(Job.new('HelloWorldJob'))
-        $jobs.push(Job.new('HelloMeJob', ['leti', 'esperon']))
+        $jobs.push(Job.new('TestJob'))
+        $jobs.push(Job.new('TestJobMultipleParams', ['leti', 'esperon']))
       end
 
       it 'prints the results of the jobs' do
         expected_outprint = []
-        expected_outprint << 'Finished computing job HelloWorldJob - Result: Hello World'
-        expected_outprint << 'Finished computing job HelloMeJob - Result: Hello World leti esperon'
+        expected_outprint << 'Finished computing job TestJob - Result: result'
+        expected_outprint << 'Finished computing job TestJobMultipleParams - Result: result'
 
         expected_outprint.map do |output|
           expect(subject).to receive(:log).with(output).ordered
@@ -31,14 +41,14 @@ describe WorkerServer do
       before do
         $jobs = Queue.new
         $jobs.push(Job.new('InvalidJob'))
-        $jobs.push(Job.new('HelloMeJob'))
-        $jobs.push(Job.new('HelloWorldJob', ['invalid', 'arguments']))
+        $jobs.push(Job.new('TestJobMultipleParams'))
+        $jobs.push(Job.new('TestJob', ['invalid', 'arguments']))
       end
 
       it 'prints an error for each invalid job' do
         first_job_output = 'Error executing job InvalidJob - Result: That job class is not defined!'
-        second_job_output = 'Error executing job HelloMeJob - Result: The job arguments are not correct :('
-        third_job_output = 'Error executing job HelloWorldJob - Result: The job arguments are not correct :('
+        second_job_output = 'Error executing job TestJobMultipleParams - Result: The job arguments are not correct :('
+        third_job_output = 'Error executing job TestJob - Result: The job arguments are not correct :('
         expected_outprint = [first_job_output, second_job_output, third_job_output]
 
         expected_outprint.map do |output|
