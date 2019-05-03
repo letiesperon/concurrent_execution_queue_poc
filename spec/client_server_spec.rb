@@ -69,6 +69,7 @@ describe ClientServer do
           }.to change($jobs, :size).by(1)
           enqueued_job = $jobs.pop
           expect(enqueued_job.class_name).to eq('TestJob')
+          expect(enqueued_job.params).to eq(['first_param', 'second_param'])
         end
 
         it 'outputs the job id in the connection' do

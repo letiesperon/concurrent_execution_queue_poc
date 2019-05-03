@@ -16,5 +16,8 @@ gemfile do
   gem 'rspec', '~> 3.5'
 end
 
+ADDRESS = 'localhost'
+PORT = 2000
+
 WorkerServer.new.start
-ClientsListener.new('localhost', 2000).start
+ClientsListener.new(ADDRESS, PORT).start
