@@ -1,7 +1,7 @@
 require 'securerandom'
 
 class Job
-  attr_reader :id, :error
+  attr_reader :id, :error, :class_name, :params
 
   def initialize(class_name, params = [])
     @id = SecureRandom.hex(5)
@@ -18,8 +18,4 @@ class Job
     @error = "The job arguments are not correct :("
     nil
   end
-
-  private
-
-  attr_reader :class_name, :params
 end
