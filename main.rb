@@ -1,0 +1,20 @@
+require './worker_server.rb'
+require './clients_listener.rb'
+require './hello_world_job.rb'
+require './hello_me_job.rb'
+require 'thread'
+require 'bundler/inline'
+
+gemfile do
+  source 'https://rubygems.org'
+
+  # debugging
+  gem 'pry', '~> 0.10.3'
+  gem 'pry-coolline', '~> 0.2.5'
+
+  # testing
+  gem 'rspec', '~> 3.5'
+end
+
+WorkerServer.new.start
+ClientsListener.new('localhost', 2000).start
