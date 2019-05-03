@@ -6,10 +6,6 @@ describe WorkerServer do
   subject { described_class.new }
 
   describe '#start' do
-    after do
-      subject.stop
-    end
-
     context 'when the jobs are valid' do
       before do
         $jobs = Queue.new
@@ -18,15 +14,16 @@ describe WorkerServer do
       end
 
       it 'prints the results of the jobs' do
-        expected_outputs = []
-        expected_outputs << 'Finished computing job HelloWorldJob - Result: Hello World'
-        expected_outputs << 'Finished computing job HelloMeJob - Result: Hello World leti esperon'
+        expected_outprint = []
+        expected_outprint << 'Finished computing job HelloWorldJob - Result: Hello World'
+        expected_outprint << 'Finished computing job HelloMeJob - Result: Hello World leti esperon'
 
-        expected_outputs.map do |output|
-          expect(STDOUT).to receive(:puts).with(output)
+        expected_outprint.map do |output|
+          expect(subject).to receive(:log).with(output).ordered
         end
 
        subject.start
+       subject.stop
       end
     end
 
@@ -39,17 +36,34 @@ describe WorkerServer do
       end
 
       it 'prints an error for each invalid job' do
-        expected_outputs = []
-        expected_outputs << 'Error executing job InvalidJob - Result: That job class is not defined!'
-        expected_outputs << 'Error executing job HelloMeJob - Result: The job arguments are not correct :('
-        expected_outputs << 'Error executing job HelloWorldJob - Result: The job arguments are not correct :('
+        first_job_output = 'Error executing job InvalidJob - Result: That job class is not defined!'
+        second_job_output = 'Error executing job HelloMeJob - Result: The job arguments are not correct :('
+        third_job_output = 'Error executing job HelloWorldJob - Result: The job arguments are not correct :('
+        expected_outprint = [first_job_output, second_job_output, third_job_output]
 
-        expected_outputs.map do |output|
-          expect(STDOUT).to receive(:puts).with(output)
+        expected_outprint.map do |output|
+          expect(subject).to receive(:log).with(output).ordered
         end
 
         subject.start
+        subject.stop
       end
+    end
+  end
+
+  describe '#stop' do
+    before do
+      subject.start
+    end
+
+    it 'returns true' do
+      expect(subject.stop).to be
+    end
+
+    it 'sets stopped in true' do
+      subject.stop
+
+      expect(subject.stopped).to be
     end
   end
 end
