@@ -65,12 +65,12 @@ describe ClientServer do
       describe 'perform_later' do
         let(:command) { 'perform_later TestJobMultipleParams first_param second_param' }
 
-        it 'enqueues a job to the queue' do
-          expect {
-            subject
-          }.to change(QueueAdapter.jobs, :size).by(1)
-          enqueued_job = QueueAdapter.next_job
-          expect(enqueued_job.class_name).to eq('TestJobMultipleParams')
+        it 'enqueues a job' do
+          expect(QueueAdapter).to receive(:enqueue).with(satisfy do |job|
+            expect(job.class_name).to eq('TestJobMultipleParams')
+          end)
+
+          subject
         end
 
         it 'outputs the job id in the connection' do
@@ -85,16 +85,15 @@ describe ClientServer do
       describe 'perform_in' do
         let(:command) { 'perform_in 10 TestJobMultipleParams first_param second_param' }
 
-        it 'enqueues a scheduled job with the right arguments' do
-           expect {
-            subject
-          }.to change(QueueAdapter.scheduled_jobs, :size).by(1)
+        it 'enqueues a scheduled job' do
+          expect(QueueAdapter).to receive(:enqueue_scheduled).with(satisfy do |job|
+            expect(job.class_name).to eq('TestJobMultipleParams')
+            expect(job.params).to eq(['first_param', 'second_param'])
+            expect(job.perform_at).to be_instance_of(Time)
+            expect(job.perform_at).to be > Time.current
+          end)
 
-          enqueued_job = QueueAdapter.scheduled_jobs.pop
-          expect(enqueued_job.class_name).to eq('TestJobMultipleParams')
-          expect(enqueued_job.params).to eq(['first_param', 'second_param'])
-          expect(enqueued_job.perform_at).to be_instance_of(Time)
-          expect(enqueued_job.perform_at).to be > Time.current
+          subject
         end
 
         it 'outputs the job id in the connection' do
@@ -103,26 +102,6 @@ describe ClientServer do
           })
 
           subject
-        end
-
-        context 'when there are other jobs in the queue' do
-          let(:command) { "perform_in 2 SecondJob first_param second_param" }
-
-          before do
-            first_job = ScheduledJob.new('FirstJob', 1.second.from_now)
-            third_job = ScheduledJob.new('ThirdJob', 50.seconds.from_now)
-            QueueAdapter.enqueue_scheduled(third_job)
-            QueueAdapter.enqueue_scheduled(first_job)
-          end
-
-          it 'enqueues the job in order of performing time' do
-             expect {
-              subject
-            }.to change(QueueAdapter.scheduled_jobs, :size).by(1)
-
-            jobs = QueueAdapter.scheduled_jobs.to_a
-            expect(jobs.map(&:class_name)).to eq(['FirstJob', 'SecondJob', 'ThirdJob'])
-          end
         end
       end
     end

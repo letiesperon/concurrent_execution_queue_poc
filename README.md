@@ -130,7 +130,7 @@ Letis-MacBook-Pro:Server leti$ rspec
 .............................................................................
 
 Finished in 0.07414 seconds (files took 0.31294 seconds to load)
-77 examples, 0 failures
+76 examples, 0 failures
 ```
 
 ---
