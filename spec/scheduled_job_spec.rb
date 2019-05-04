@@ -1,6 +1,7 @@
-require './job.rb'
+require './scheduled_job.rb'
+require 'active_support/time'
 
-describe Job do
+describe ScheduledJob do
   class TestJob
     def perform
       'result'
@@ -15,7 +16,8 @@ describe Job do
 
   let(:class_name) { 'some_class_name' }
   let(:params) { ['some_param'] }
-  subject(:job) { described_class.new(class_name, params) }
+  let(:perform_at) { Time.current }
+  subject(:scheduled_job) { described_class.new(class_name, perform_at, params) }
 
   describe '.initialize' do
     it 'assigns an id' do
@@ -29,11 +31,33 @@ describe Job do
     it 'assigns the params' do
       expect(subject.params).to eq(params)
     end
+
+    it 'assigns the perform_at' do
+      expect(subject.perform_at).to eq(perform_at)
+    end
+  end
+
+  describe '#ready_to_run?' do
+    context 'when perform_at is in the future' do
+      let(:perform_at) { 10.seconds.from_now }
+
+      it 'is false' do
+        expect(subject.ready_to_run?).to eq(false)
+      end
+    end
+
+    context 'when perform_at is in the past' do
+      let(:perform_at) { 10.seconds.ago }
+
+      it 'is true' do
+        expect(subject.ready_to_run?).to eq(true)
+      end
+    end
   end
 
   describe '#enqueue' do
     it 'delegates enqueing to queue adapter' do
-      expect(QueueAdapter).to receive(:enqueue).with(subject)
+      expect(QueueAdapter).to receive(:enqueue_scheduled).with(subject)
 
       subject.enqueue
     end

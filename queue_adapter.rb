@@ -17,7 +17,7 @@ module QueueAdapter
   def self.next_scheduled_job
     next_job = scheduled_jobs.first
     if next_job.ready_to_run?
-      scheduled_jobs.pop
+      scheduled_jobs.shift
     end
   rescue
     nil
