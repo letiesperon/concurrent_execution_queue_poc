@@ -1,5 +1,7 @@
 require './job.rb'
+require './scheduled_job.rb'
 require 'socket'
+require 'active_support/time'
 
 class ClientServer
   EXIT_WORD = 'exit'.freeze
@@ -9,7 +11,6 @@ class ClientServer
   def initialize(connection)
     @connection = connection
     @stopped = false
-    $jobs ||= Queue.new
   end
 
   def serve_client
@@ -60,17 +61,16 @@ class ClientServer
   def perform_later(command_parts)
     class_name = command_parts.shift
     job = Job.new(class_name, command_parts)
-
-    $jobs.push(job)
+    job.enqueue
     job.id
   end
 
   def perform_in(command_parts)
     perform_in = command_parts.shift
+    perform_at = perform_in.to_i.seconds.from_now
     class_name = command_parts.shift
-    job = Job.new(class_name, command_parts) # TODO. Add perform_in
-
-    $jobs.push(job)
+    job = ScheduledJob.new(class_name, perform_at, command_parts)
+    job.enqueue
     job.id
   end
 

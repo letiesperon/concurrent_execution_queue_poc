@@ -1,4 +1,5 @@
 require './worker_server.rb'
+require './scheduled_worker_server.rb'
 require './clients_listener.rb'
 require './hello_world_job.rb'
 require './hello_me_job.rb'
@@ -20,4 +21,5 @@ ADDRESS = 'localhost'
 PORT = 2000
 
 WorkerServer.new.start
+ScheduledWorkerServer.new.start
 ClientsListener.new(ADDRESS, PORT).start

@@ -1,4 +1,5 @@
 require 'securerandom'
+require './queue_adapter.rb'
 
 class Job
   attr_reader :id, :error, :class_name, :params
@@ -17,5 +18,9 @@ class Job
   rescue ArgumentError
     @error = "The job arguments are not correct :("
     nil
+  end
+
+  def enqueue
+    QueueAdapter.enqueue(self)
   end
 end
