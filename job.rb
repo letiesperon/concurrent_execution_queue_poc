@@ -13,10 +13,10 @@ class Job
   def perform
     Object.const_get(class_name).new.perform(*params)
   rescue NameError
-    @error = "That job class is not defined!"
+    @error = "Error: That job class is not defined!"
     nil
   rescue ArgumentError
-    @error = "The job arguments are not correct :("
+    @error = "Error: The job arguments are not correct :("
     nil
   end
 

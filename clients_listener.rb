@@ -18,7 +18,6 @@ class ClientsListener
     while !stopped do
       client_connection = server_socket.accept
       handle_client(client_connection)
-      sleep(1)
     end
 
     server_socket.close
