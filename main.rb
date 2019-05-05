@@ -9,11 +9,6 @@ require 'bundler/inline'
 gemfile do
   source 'https://rubygems.org'
 
-  # debugging
-  gem 'pry', '~> 0.10.3'
-  gem 'pry-coolline', '~> 0.2.5'
-
-  # testing
   gem 'rspec', '~> 3.5'
 end
 
